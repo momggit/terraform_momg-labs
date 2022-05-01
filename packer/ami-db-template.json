@@ -1,0 +1,18 @@
+{
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "region": "us-west-2",
+      "source_ami": "ami-0892d3c7ee96c0bf7",
+      "instance_type": "t2.small",
+      "ssh_username": "ubuntu",
+      "ami_name": "momg-db-{{timestamp}}"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "docker-and-db-setup.sh"
+    }
+  ]
+}

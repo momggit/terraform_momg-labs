@@ -1,0 +1,49 @@
+#Comandos utiles
+
+#Mirar cambios antes de aplicar
+terraform plan
+
+#Aplicar con auto aprobacion
+terraform apply -auto-approve
+
+#Crear el alb
+terraform apply -target aws_lb.alb_momg
+
+#Instance DB
+
+terraform apply -target aws_autoscaling_attachment.instance_db
+
+#Crear instancia de la DB
+terraform apply -var number_of_instances_db=1 -target aws_autoscaling_group.db
+
+#Destruir instancia de la DB
+terraform apply -var number_of_instances_db=0 -target aws_autoscaling_group.db
+
+#Instance Splunk
+
+terraform apply -target aws_autoscaling_attachment.instance_splunk
+
+#Crear instancia del splunk
+terraform apply -var number_of_instances_splunk=1 -target aws_autoscaling_group.splunk
+
+#Destruir instancia del splunk
+terraform apply -var number_of_instances_splunk=0 -target aws_autoscaling_group.splunk
+
+#Destruir el alb
+terraform destroy -target aws_lb.alb_momg
+
+#Correr splunk manualmente
+docker run -p 80:8000 -e "SPLUNK_START_ARGS=--accept-license" -e "SPLUNK_PASSWORD=Pjdny383vCsGa8Ed" --name splunk splunk/splunk:8.2
+
+#registrar instancia web al target group
+terraform apply -target aws_autoscaling_attachment.instance_web
+
+#usuario/password web
+momg
+NHss@N8n^L1bFHgKLf
+
+#Por si ocurre un error de bloqueo en terraform
+#Error: Error acquiring the state lock
+#Copiar el lock info ID y correr este comando
+#terraform force-unlock <ID>
+terraform force-unlock 3f59bd77-4506-cf1f-65eb-dad626e1d12b

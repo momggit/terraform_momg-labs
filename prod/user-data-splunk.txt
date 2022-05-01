@@ -1,0 +1,23 @@
+#!bin/bash
+sudo apt install -y nfs-common fail2ban unzip
+sudo mkdir /efs
+sudo chown ${USER} /efs
+sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport ${efs_id}.efs.${region}.amazonaws.com:/ /efs
+cd /home/${USER}
+export http_proxy="http://${proxy_ip}:8000/"
+export https_proxy="http://${proxy_ip}:8000/"
+sudo echo "export http_proxy='http://${proxy_ip}:8000/'" >> ~/.bashrc
+sudo echo "export https_proxy='http://${proxy_ip}:8000/'" >> ~/.bashrc
+sudo -E curl -H 'Authorization: token ${token_github}' -H 'Accept: application/vnd.github.v3.raw' -O -L ${repository_config_momg}/contents/splunk/prod.yml
+sudo -E curl -H 'Authorization: token ${token_github}' -H 'Accept: application/vnd.github.v3.raw' -O -L ${repository_config_momg}/contents/splunk/docker-compose-app.service
+sudo -E curl -H 'Authorization: token ${token_github}' -H 'Accept: application/vnd.github.v3.raw' -O -L ${repository_config_momg}/contents/bastion/authorized_keys
+sudo chmod 700 .ssh
+sudo cat authorized_keys >>.ssh/authorized_keys
+sudo chmod 600 .ssh/authorized_keys
+sudo mv docker-compose-app.service  /etc/systemd/system/docker-compose-app.service
+printf "${file_env}" >> .env
+printf "${server_conf}" >> server.conf
+sudo systemctl mask unattended-upgrades.service
+sudo systemctl stop unattended-upgrades.service
+sudo systemctl daemon-reload
+sudo systemctl restart docker-compose-app
